@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 interface VideoEntry {
   id: string;
   url: string;
@@ -31,8 +33,43 @@ const videos: VideoEntry[] = [
 ];
 
 export function VideoSection() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [iframeKey, setIframeKey] = useState(0);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const visible = entry.isIntersecting && entry.intersectionRatio > 0.35;
+
+        setIsVisible(visible);
+
+        if (!visible) {
+          setIframeKey((current) => current + 1);
+        }
+      },
+      {
+        threshold: [0, 0.35, 0.6],
+      }
+    );
+
+    observer.observe(section);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
-    <section id="videos" className="py-20 bg-[#1a0f08]">
+    <section
+      id="videos"
+      ref={sectionRef}
+      className="py-20 bg-[#1a0f08]"
+    >
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-12">
           <p className="text-[#c9a96e] tracking-[0.25em] uppercase text-xs mb-2">
@@ -58,17 +95,26 @@ export function VideoSection() {
                 key={video.id}
                 className="rounded-2xl overflow-hidden bg-[#2d1f14] border border-[#c9a96e]/20 shadow-xl"
               >
-                {embed && (
-                  <div className="relative" style={{ paddingBottom: "56.25%" }}>
+                <div className="relative" style={{ paddingBottom: "56.25%" }}>
+                  {embed && isVisible && (
                     <iframe
+                      key={`${video.id}-${iframeKey}`}
                       src={embed}
                       title={video.title}
                       className="absolute inset-0 w-full h-full"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
                     />
-                  </div>
-                )}
+                  )}
+
+                  {!isVisible && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                      <p className="text-white/70 text-sm">
+                        Video pausado
+                      </p>
+                    </div>
+                  )}
+                </div>
 
                 <div className="p-4">
                   <p className="text-white/80 text-sm text-center">
