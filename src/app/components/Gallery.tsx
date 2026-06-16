@@ -13,6 +13,8 @@ import img8 from "../../imports/8.jpg";
 
 import bano from "../../imports/bano.jpeg";
 import camaKing from "../../imports/camaking.jpeg";
+import lavarropas from "../../imports/lavarropas.jpeg";
+
 import imgTecho1 from "../../imports/Horno_laguna_desde_techo__2_.jpeg";
 import imgTecho2 from "../../imports/Horno_desde_techo_a_laguna__2_.jpg";
 
@@ -44,6 +46,10 @@ const photos = [
   {
     src: bano,
     alt: "Baño completo con ducha",
+  },
+  {
+    src: lavarropas,
+    alt: "Lavadero con lavarropas",
   },
   {
     src: img13,

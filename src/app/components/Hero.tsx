@@ -8,7 +8,7 @@ import {
   Maximize2,
 } from "lucide-react";
 
-import img4 from "../../imports/4.jpg";
+import img1 from "../../imports/1.jpg";
 import img11 from "../../imports/11.jpg";
 
 import camaKing from "../../imports/camaking.jpeg";
@@ -22,7 +22,7 @@ type Slide = {
 
 const slides: Slide[] = [
   {
-    src: img4,
+    src: img1,
     caption: "Espacio exterior del alojamiento",
     position: "center center",
   },
