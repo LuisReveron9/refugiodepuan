@@ -11,7 +11,7 @@ type BookedRange = {
   to: Date;
 };
 
-type ReservationRow = {
+type BlockedDateRow = {
   check_in: string;
   check_out: string;
 };
@@ -23,21 +23,23 @@ export function AvailabilityCalendar() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchReservations() {
+    async function fetchBlockedDates() {
       setLoading(true);
 
       const { data, error } = await supabase
-        .from("reservations")
-        .select("check_in, check_out");
+        .from("blocked_dates")
+        .select("check_in, check_out")
+        .eq("status", "blocked")
+        .order("check_in", { ascending: true });
 
       if (error) {
-        console.error("Error cargando reservas:", error.message);
+        console.error("Error cargando fechas bloqueadas:", error.message);
         setLoading(false);
         return;
       }
 
       const ranges =
-        (data as ReservationRow[])?.map((reservation) => ({
+        (data as BlockedDateRow[])?.map((reservation) => ({
           from: parseISO(reservation.check_in),
           to: parseISO(reservation.check_out),
         })) || [];
@@ -46,7 +48,7 @@ export function AvailabilityCalendar() {
       setLoading(false);
     }
 
-    fetchReservations();
+    fetchBlockedDates();
   }, []);
 
   function isBooked(date: Date) {
@@ -86,12 +88,14 @@ export function AvailabilityCalendar() {
           <p className="text-[#c9a96e] tracking-[0.25em] uppercase text-xs mb-2">
             Planificá tu visita
           </p>
+
           <h2
             className="text-3xl md:text-4xl text-[#3d2410]"
             style={{ fontFamily: "Georgia, serif" }}
           >
             Disponibilidad
           </h2>
+
           <div className="w-16 h-0.5 bg-[#c9a96e] mx-auto mt-4" />
         </div>
 
@@ -106,24 +110,34 @@ export function AvailabilityCalendar() {
                   --rdp-background-color-dark: #3d2410;
                   margin: 0;
                 }
-                .rdp-day_selected, .rdp-day_range_start, .rdp-day_range_end {
+
+                .rdp-day_selected,
+                .rdp-day_range_start,
+                .rdp-day_range_end {
                   background-color: #8b5e3c !important;
                   color: white !important;
                 }
+
                 .rdp-day_range_middle {
                   background-color: #f5ece0 !important;
                   color: #3d2410 !important;
                 }
+
                 .rdp-day_disabled {
-                  color: #d0b8a0 !important;
+                  color: #b35f4d !important;
+                  background-color: #fde8e8 !important;
                   text-decoration: line-through;
+                  opacity: 0.85;
                 }
+
                 .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
                   background-color: #f5ece0;
                 }
+
                 .rdp-caption_label {
                   color: #3d2410;
                 }
+
                 .rdp-head_cell {
                   color: #8b5e3c;
                 }
@@ -153,10 +167,12 @@ export function AvailabilityCalendar() {
                 <div className="w-3 h-3 rounded-sm bg-[#fde8e8] border border-red-200" />
                 Reservado
               </div>
+
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-sm bg-[#8b5e3c]" />
                 Seleccionado
               </div>
+
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-3 rounded-sm bg-white border border-[#e8d5be]" />
                 Disponible
@@ -191,6 +207,7 @@ export function AvailabilityCalendar() {
                           day: "numeric",
                         })}
                       </p>
+
                       <p>
                         <strong>Noches:</strong> {nights}
                       </p>
@@ -235,11 +252,14 @@ export function AvailabilityCalendar() {
             <div className="bg-white rounded-2xl p-6 border border-[#e8d5be]">
               <div className="flex items-start gap-3">
                 <Info size={18} className="text-[#c9a96e] mt-0.5 shrink-0" />
+
                 <div className="text-sm text-[#7a6050] space-y-1">
                   <p>Estadía mínima: 2 noches.</p>
                   <p>Check-in a partir de las 14 hs.</p>
                   <p>Check-out hasta las 11 hs.</p>
-                  <p>Para reservas con más de 7 noches, consultar precio especial.</p>
+                  <p>
+                    Para reservas con más de 7 noches, consultar precio especial.
+                  </p>
                 </div>
               </div>
             </div>
